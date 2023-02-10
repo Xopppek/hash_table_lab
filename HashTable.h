@@ -2,6 +2,7 @@
 #define HASH_TABLE_LAB_HASHTABLE_H
 #include "vector"
 #include "list"
+#include "queue"
 
 struct HashFunc1{
     int operator() (const char& key) const{
@@ -23,10 +24,25 @@ private:
         Element(const K& key, const V& value){_key = key; _value = value;}
         V GetValue() const {return _value;}
         K GetKey() const {return _key;}
+        V& GetValue() {return _value;}
     };
 
-    int _size = 10;
-    int _maxSize = 1000;
+   /* class Cash{
+    private:
+        struct CashElement{
+            K key;
+            bool isInTable;
+            V* value = nullptr;
+        };
+        size_t _capacity = 20;
+        size_t _size = 0;
+        std::queue<CashElement> CashElements;
+    public:
+        Cash(){}
+    };*/
+
+    size_t _size = 0;
+    size_t _maxSize = 1000;
 
     std::vector<std::list<Element>> _table;
     // creating array of lists of elements (in collision case, we put new element in the end of list)
@@ -36,9 +52,9 @@ private:
             _table.resize(size);
             _size = size;
             //std::cout << "resized to " << _size << "\n";
-            return 1;
+            return true;
         }
-        return 0;
+        return false;
     }
 
 public:
@@ -50,9 +66,10 @@ public:
     ~HashTable() = default;
 
     //add returns 0 if element is new and added successfully, 1 if element with that key already is in table
-    //2 if key is invalid (hash > max_size)
+    //2 if key is invalid (hash > max_size or hash < 0)
     short Add(const K& key, const V& value, const HashFunction& hashFunction = HashFunction()){
         int hash = hashFunction(key);
+        if (hash < 0) return 2;
         if (hash >= _size)
             if (!Resize(hash + 1)) return 2;
         auto tableIter = _table.begin();
@@ -67,10 +84,10 @@ public:
     }
 
     //add returns 0 if element was in table and deleted successfully, 1 if there wasn't any elements with this key
-    //2 if key is invalid (hash > max_size)
+    //2 if key is invalid (hash > max_size or hash < 0)
     short Remove(const K& key, const HashFunction& hashFunction = HashFunction()){
         int hash = hashFunction(key);
-        if (hash >= _size) return 2;
+        if (hash >= _size || hash < 0) return 2;
         auto tableIter = _table.begin();
         tableIter += hash;
         for (auto listIter = (*tableIter).begin(); listIter != (*tableIter).end(); listIter++){
@@ -80,6 +97,34 @@ public:
             }
         }
         return 1;
+    }
+
+    bool IsFound(const K& key, const HashFunction& hashFunction = HashFunction()){
+        int hash = hashFunction(key);
+        if (hash >= _size || hash < 0) return false;
+
+        auto tableIter = _table.begin();
+        tableIter += hash;
+        for (auto listIter = (*tableIter).begin(); listIter != (*tableIter).end(); listIter++){
+            if ((*listIter).GetKey() == key) {
+                return (*listIter).GetValue();
+            }
+        }
+        return false;
+    }
+
+    //use it only if IsFound
+    V& GetValue(const K& key, const HashFunction& hashFunction = HashFunction()){
+        int hash = hashFunction(key);
+        if (hash >= _size || hash < 0) throw "invalid key";
+        auto tableIter = _table.begin();
+        tableIter += hash;
+        for (auto listIter = (*tableIter).begin(); listIter != (*tableIter).end(); listIter++){
+            if ((*listIter).GetKey() == key) {
+                return (*listIter).GetValue();
+            }
+        }
+        throw "no element";
     }
 
     //forbidden function ^_^
