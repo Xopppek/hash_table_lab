@@ -32,6 +32,7 @@ int main() {
     hashTable.Add('q', 17);
     hashTable.Add('g', 14);
     hashTable.Add('G', 16);
+    //hashTable.Add('y', 10);
 
 
 
@@ -52,10 +53,24 @@ int main() {
     std::cout << hashTable;
 
     //std::cout << hashTable.IsFound('j') << " " << hashTable.GetValue('j') << "\n";
-    std::cout << hashTable.IsFound('j') << "\n";
+
     std::cout << hashTable.IsFound('j') << "\n";
     std::cout << hashTable.IsFound('r') << "\n";
-    std::cout << hashTable.IsFound('r') << "\n";
+
+
+    hashTable.PrintCash();
+
+    hashTable.Remove('j');
+    hashTable.Add('r', 6);
+
+    hashTable.PrintCash();
+
+    hashTable.IsFound('N');
+
+    hashTable.PrintCash();
+    hashTable.IsFound('y');
+    hashTable.PrintCash();
+    
 //    int* x = &(hashTable.Find('V'));
 //    *x = 15;
 
