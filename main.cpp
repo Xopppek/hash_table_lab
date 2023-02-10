@@ -5,6 +5,7 @@
 struct f{
     int operator() (const char& key) const{
         int hash = (int) key - 93;
+        hash = hash*hash/100;
         if (hash < 0) hash*=(-1);
         return hash;
     }
@@ -18,7 +19,7 @@ struct g{
 };
 
 int main() {
-    HashTable<char, int> hashTable;
+    HashTable<char, int, f> hashTable;
 
     hashTable.Add('a', 5);
     hashTable.Add('b', 7);
@@ -26,7 +27,11 @@ int main() {
     hashTable.Add('j', 2);
     hashTable.Add('V', 11);
     hashTable.Add('T', 4);
-    hashTable.Add('T', 9);
+    hashTable.Add('R', 9);
+    hashTable.Add('m', 3);
+    hashTable.Add('q', 17);
+    hashTable.Add('g', 14);
+    hashTable.Add('G', 16);
 
 
 
@@ -46,7 +51,11 @@ int main() {
 
     std::cout << hashTable;
 
-    std::cout << hashTable.IsFound('j') << " " << hashTable.GetValue('j') << "\n";
+    //std::cout << hashTable.IsFound('j') << " " << hashTable.GetValue('j') << "\n";
+    std::cout << hashTable.IsFound('j') << "\n";
+    std::cout << hashTable.IsFound('j') << "\n";
+    std::cout << hashTable.IsFound('r') << "\n";
+    std::cout << hashTable.IsFound('r') << "\n";
 //    int* x = &(hashTable.Find('V'));
 //    *x = 15;
 

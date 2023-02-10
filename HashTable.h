@@ -2,7 +2,6 @@
 #define HASH_TABLE_LAB_HASHTABLE_H
 #include "vector"
 #include "list"
-#include "queue"
 
 struct HashFunc1{
     int operator() (const char& key) const{
@@ -27,28 +26,53 @@ private:
         V& GetValue() {return _value;}
     };
 
-   /* class Cash{
+    class Cash{
     private:
-        struct CashElement{
-            K key;
-            bool isInTable;
-            V* value = nullptr;
+        class CashElement{
+        private:
+            K _key;
+            bool _isInTable;
+        public:
+            CashElement(K key, bool isInTable) : _key(key), _isInTable(isInTable) {};
+            K GetKey() const {return _key;};
+            bool IsInTable() const {return _isInTable;}
+            void Remove(){_isInTable = 0;}
+            void Add(){_isInTable = 1;}
         };
         size_t _capacity = 20;
         size_t _size = 0;
-        std::queue<CashElement> CashElements;
+        std::list<CashElement> CashElements;
     public:
-        Cash(){}
-    };*/
+        Cash(){CashElements = std::list<CashElement>();}
+        ~Cash() = default;
+        void Set(K key, bool isInTable){
+            CashElement newCashElement = CashElement(key, isInTable);
+            if (_size == _capacity)
+                CashElements.pop_front();
+            else
+                _size++;
+            CashElements.push_back(newCashElement);
+        }
+        //returns 0 if not in table, 1 if is in table, 2 if is not in cash
+        short GetStatus(K key){
+            for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++){
+                if ((*iter).GetKey() == key)
+                    return (*iter).IsInTable();
+            }
+            return 2;
+        }
+    };
 
     size_t _size = 0;
     size_t _maxSize = 1000;
+
+    Cash cash;
 
     std::vector<std::list<Element>> _table;
     // creating array of lists of elements (in collision case, we put new element in the end of list)
 
     bool Resize(int size){
-        if (size < _maxSize) {
+        if (size < _maxSize && size >= 0) {
             _table.resize(size);
             _size = size;
             //std::cout << "resized to " << _size << "\n";
@@ -62,6 +86,7 @@ public:
     HashTable(){
         _table = std::vector<std::list<Element>>();
         _table.resize(_size);
+        cash = Cash();
     }
     ~HashTable() = default;
 
@@ -99,17 +124,23 @@ public:
         return 1;
     }
 
+
     bool IsFound(const K& key, const HashFunction& hashFunction = HashFunction()){
+        short status = cash.GetStatus(key);
+        if(status == 1) return true;
+        else if (status == 0) return false;
+
         int hash = hashFunction(key);
         if (hash >= _size || hash < 0) return false;
-
         auto tableIter = _table.begin();
         tableIter += hash;
         for (auto listIter = (*tableIter).begin(); listIter != (*tableIter).end(); listIter++){
             if ((*listIter).GetKey() == key) {
-                return (*listIter).GetValue();
+                cash.Set(key, true);
+                return true;
             }
         }
+        cash.Set(key, false);
         return false;
     }
 
@@ -139,10 +170,8 @@ public:
         }
         std::cout << std::endl;
     }*/
-
     auto begin() const {return _table.begin();}
     auto end() const {return _table.end();}
-
 };
 
 
