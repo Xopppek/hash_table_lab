@@ -21,8 +21,8 @@ private:
     public:
         Element(){_key = 0; _value = 0;}
         Element(const K& key, const V& value){_key = key; _value = value;}
-        V GetValue(){return _value;}
-        K GetKey(){return _key;}
+        V GetValue() const {return _value;}
+        K GetKey() const {return _key;}
     };
 
     int _size = 10;
@@ -42,6 +42,7 @@ private:
     }
 
 public:
+
     HashTable(){
         _table = std::vector<std::list<Element>>();
         _table.resize(_size);
@@ -81,7 +82,8 @@ public:
         return 1;
     }
 
-    void Print(){
+    //forbidden function ^_^
+   /* void Print(){
         int t = 0;
         for (auto it = _table.begin(); it != _table.end(); it++){
             std::cout << t++ << ": ";
@@ -91,8 +93,26 @@ public:
             std::cout << std::endl;
         }
         std::cout << std::endl;
-    }
+    }*/
+
+    auto begin() const {return _table.begin();}
+    auto end() const {return _table.end();}
+
 };
 
+
+
+template <typename K, typename V, class HashFunction>
+std::ostream& operator<<(std::ostream &os, const HashTable<K, V, HashFunction> &table) {
+    int t = 0;
+    for (auto it = table.begin(); it != table.end(); it++){
+        os << t++ << ": ";
+        for (auto it2 = (*it).begin(); it2 != (*it).end(); it2++){
+            os << (*it2).GetKey() << "-" << (*it2).GetValue() << " ";
+        }
+        os << "\n";
+    }
+    return os;
+}
 
 #endif //HASH_TABLE_LAB_HASHTABLE_H
