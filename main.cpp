@@ -19,7 +19,9 @@ struct g{
 };
 
 int main() {
-    HashTable<char, int, f> hashTable;
+    HashTable<char, int, f> hashTable(6);
+   /* HashTable<char, int> hashTable1(2);
+    std::cout << hashTable1 << std::endl;*/
 
     hashTable.Add('a', 5);
     hashTable.Add('b', 7);

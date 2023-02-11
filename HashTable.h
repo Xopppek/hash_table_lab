@@ -39,11 +39,11 @@ private:
             void Remove(){_isInTable = 0;}
             void Add(){_isInTable = 1;}
         };
-        size_t _capacity = 3;
+        size_t _capacity;
         size_t _size = 0;
         std::list<CashElement> CashElements;
     public:
-        Cash(){CashElements = std::list<CashElement>();}
+        Cash(size_t capacity = 3){CashElements = std::list<CashElement>(); _capacity = capacity;}
         ~Cash() = default;
         void Set(K key, bool isInTable){
             CashElement newCashElement = CashElement(key, isInTable);
@@ -119,6 +119,18 @@ public:
         _table = std::vector<std::list<Element>>();
         _table.resize(_size);
         cash = Cash();
+    }
+    HashTable(size_t size){
+        _table = std::vector<std::list<Element>>();
+        _size = size;
+        _table.resize(_size);
+        cash = Cash();
+    }
+    HashTable(size_t size, size_t cashSize){
+        _table = std::vector<std::list<Element>>();
+        _size = size;
+        _table.resize(_size);
+        cash = Cash(cashSize);
     }
     ~HashTable() = default;
 
