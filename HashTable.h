@@ -106,6 +106,13 @@ private:
         return false;
     }
 
+    void CleanTail(){
+        while((_table.end()-1)->empty()) {
+            _table.pop_back();
+            _size--;
+        }
+    }
+
 public:
 
     HashTable(){
@@ -147,6 +154,7 @@ public:
             if ((*listIter).GetKey() == key) {
                 (*tableIter).erase(listIter);
                 if (cash.IsInCash(key)) cash.Remove(key);
+                CleanTail();
                 return 0;
             }
         }
