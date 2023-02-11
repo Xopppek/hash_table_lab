@@ -19,7 +19,7 @@ struct g{
 };
 
 int main() {
-    HashTable<char, int, f> hashTable(6);
+    HashTable<char, int, f> hashTable(6, 4);
     hashTable.DontMakeShort();
     hashTable.MakeShort();
    /* HashTable<char, int> hashTable1(2);
@@ -36,6 +36,7 @@ int main() {
     hashTable.Add('q', 17);
     hashTable.Add('g', 14);
     hashTable.Add('G', 16);
+    hashTable.Add('o');
     //hashTable.Add('y', 10);
 
 
@@ -68,13 +69,18 @@ int main() {
     //std::cout << hashTable.IsFound('j') << " " << hashTable.GetValue('j') << "\n";
 
     std::cout << hashTable.IsFound('j') << "\n";
-    std::cout << hashTable.IsFound('r') << "\n";
+    std::cout << hashTable.IsFound('r') << "\n\n";
 
 
     hashTable.PrintCash();
 
+    std::cout << std::endl;
+
     hashTable.Remove('j');
     hashTable.Add('r', 6);
+
+
+    std::cout << hashTable << std::endl;
 
     hashTable.PrintCash();
 
@@ -83,6 +89,30 @@ int main() {
     hashTable.PrintCash();
     hashTable.IsFound('y');
     hashTable.PrintCash();
+
+
+
+
+    std::cout << hashTable['L'] << std::endl;
+
+
+    std::cout << hashTable << std::endl;
+
+    std::cout << hashTable['L'] << std::endl;
+
+    int a = hashTable['L'];
+    std::cout << a << " a " << std:: endl;
+    hashTable['L'] = 100;
+    std::cout << hashTable['L'] << std::endl;
+
+
+/*
+    std::cout << hashTable['o'] << std::endl;
+
+    std::cout << hashTable << std::endl;
+
+    hashTable['r'] = 10;
+    std::cout << hashTable['r'] << std::endl;*/
 
 //    int* x = &(hashTable.Find('V'));
 //    *x = 15;

@@ -2,6 +2,7 @@
 #define HASH_TABLE_LAB_HASHTABLE_H
 #include "vector"
 #include "list"
+#include "algorithm"
 
 struct HashFunc1{
     int operator() (const char& key) const{
@@ -9,6 +10,71 @@ struct HashFunc1{
         if (hash < 0) hash*=(-1);
         return hash;
     }
+};
+
+template <typename K, typename V>
+class Cash{
+private:
+    class CashElement{
+    private:
+        K _key;
+        bool _isInTable;
+        V _value;
+    public:
+        CashElement(K key, bool isInTable) : _key(key), _isInTable(isInTable) {};
+        K GetKey() const {return _key;}
+        V GetValue() const {return _value;}
+        bool IsInTable() const {return _isInTable;}
+        void Remove(){_isInTable = 0;}
+        void Add(){_isInTable = 1;}
+    };
+    size_t _capacity;
+    size_t _size = 0;
+    std::list<CashElement> CashElements;
+public:
+    Cash(size_t capacity = 3){CashElements = std::list<CashElement>(); _capacity = capacity;}
+    ~Cash() = default;
+    void Set(K key, bool isInTable){
+        CashElement newCashElement = CashElement(key, isInTable);
+        if (_size == _capacity)
+            CashElements.pop_front();
+        else
+            _size++;
+        CashElements.push_back(newCashElement);
+    }
+    //returns 0 if not in table, 1 if is in table, 2 if is not in cash
+    short GetStatus(const K& key){
+        for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++){
+            if ((*iter).GetKey() == key)
+                return (*iter).IsInTable();
+        }
+        return 2;
+    }
+
+    bool IsInCash(const K& key){
+        for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++){
+            if ((*iter).GetKey() == key)
+                return true;
+        }
+        return false;
+    }
+
+    void Add(const K& key){
+        for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++){
+            if ((*iter).GetKey() == key)
+                (*iter).Add();
+        }
+    }
+
+    void Remove(const K& key){
+        for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++){
+            if ((*iter).GetKey() == key)
+                (*iter).Remove();
+        }
+    }
+
+    auto begin() const {return CashElements.begin();}
+    auto end() const {return CashElements.end();}
 };
 
 template <typename K, typename V, class HashFunction = HashFunc1>
@@ -26,73 +92,13 @@ private:
         V& GetValue() {return _value;}
     };
 
-    class Cash{
-    private:
-        class CashElement{
-        private:
-            K _key;
-            bool _isInTable;
-        public:
-            CashElement(K key, bool isInTable) : _key(key), _isInTable(isInTable) {};
-            K GetKey() const {return _key;};
-            bool IsInTable() const {return _isInTable;}
-            void Remove(){_isInTable = 0;}
-            void Add(){_isInTable = 1;}
-        };
-        size_t _capacity;
-        size_t _size = 0;
-        std::list<CashElement> CashElements;
-    public:
-        Cash(size_t capacity = 3){CashElements = std::list<CashElement>(); _capacity = capacity;}
-        ~Cash() = default;
-        void Set(K key, bool isInTable){
-            CashElement newCashElement = CashElement(key, isInTable);
-            if (_size == _capacity)
-                CashElements.pop_front();
-            else
-                _size++;
-            CashElements.push_back(newCashElement);
-        }
-        //returns 0 if not in table, 1 if is in table, 2 if is not in cash
-        short GetStatus(const K& key){
-            for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++){
-                if ((*iter).GetKey() == key)
-                    return (*iter).IsInTable();
-            }
-            return 2;
-        }
 
-        bool IsInCash(const K& key){
-            for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++){
-                if ((*iter).GetKey() == key)
-                    return true;
-            }
-            return false;
-        }
-
-        void Add(const K& key){
-            for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++){
-                if ((*iter).GetKey() == key)
-                    (*iter).Add();
-            }
-        }
-
-        void Remove(const K& key){
-            for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++){
-                if ((*iter).GetKey() == key)
-                    (*iter).Remove();
-            }
-        }
-
-        auto begin() const {return CashElements.begin();}
-        auto end() const {return CashElements.end();}
-    };
 
     size_t _size = 0;
     size_t _maxSize = 1000;
     bool wantedToBeShort = true;
 
-    Cash cash;
+    Cash<K, V> cash;
 
     std::vector<std::list<Element>> _table;
     // creating array of lists of elements (in collision case, we put new element in the end of list)
@@ -113,25 +119,25 @@ public:
     HashTable(){
         _table = std::vector<std::list<Element>>();
         _table.resize(_size);
-        cash = Cash();
+        cash = Cash<K, V>();
     }
     HashTable(size_t size){
         _table = std::vector<std::list<Element>>();
         _size = size;
         _table.resize(_size);
-        cash = Cash();
+        cash = Cash<K, V>();
     }
     HashTable(size_t size, size_t cashSize){
         _table = std::vector<std::list<Element>>();
         _size = size;
         _table.resize(_size);
-        cash = Cash(cashSize);
+        cash = Cash<K, V>(cashSize);
     }
     ~HashTable() = default;
 
     //add returns 0 if element is new and added successfully, 1 if element with that key already is in table
     //2 if key is invalid (hash > max_size or hash < 0)
-    short Add(const K& key, const V& value, const HashFunction& hashFunction = HashFunction()){
+    short Add(const K& key, const V& value = V(), const HashFunction& hashFunction = HashFunction()){
         int hash = hashFunction(key);
         if (hash < 0) return 2;
         if (hash >= _size)
@@ -237,9 +243,36 @@ public:
        std::cout << std::endl;
    }
 
+
+   V& operator[] (const K& key){
+       HashFunction hashFunction;
+       int hash = hashFunction(key);
+       if (hash < 0) throw "incorrect key";
+       if (hash >= _size) {
+           Add(key, V());
+           return (_table[hash].begin()->GetValue());
+       }
+       /*auto it = _table[hash].begin();
+       while (it != _table[hash].end()){
+           if (it->GetKey() == key){
+               return (it->GetValue());
+           }
+           it++;
+       }*/
+       auto keyIsEven = [&key](const Element& element){ return (key == element.GetKey()); };
+
+       auto result = std::find_if(_table[hash].begin(), _table[hash].end(), keyIsEven);
+
+       if(result == _table[hash].end()) {
+           Add(key, V());
+       }
+       return (GetValue(key));
+   }
+
     auto begin() const {return _table.begin();}
     auto end() const {return _table.end();}
 };
+
 
 
 
