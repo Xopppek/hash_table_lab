@@ -34,7 +34,7 @@ private:
 public:
     Cash(size_t capacity = 3){CashElements = std::list<CashElement>(); _capacity = capacity;}
     ~Cash() = default;
-    void Set(K key, bool isInTable, V value = V()){
+    void Set(const K& key, const bool& isInTable, const V& value = V()){
         CashElement newCashElement = CashElement(key, isInTable, value);
         if (_size == _capacity)
             CashElements.pop_front();
@@ -228,7 +228,7 @@ public:
         return false;
     }
 
-    V GetValue(const K& key, const HashFunction& hashFunction = HashFunction()) const{
+    V GetValue(const K& key, const HashFunction& hashFunction = HashFunction()){
         if (cash.GetStatus(key) == 0) throw "no element";
         int hash = hashFunction(key);
         if (hash >= _size || hash < 0) throw "invalid key";
@@ -239,9 +239,11 @@ public:
         tableIter += hash;
         for (auto listIter = (*tableIter).begin(); listIter != (*tableIter).end(); listIter++){
             if ((*listIter).GetKey() == key) {
+                cash.Set(key, true, (*listIter).GetValue());
                 return (*listIter).GetValue();
             }
         }
+        cash.Set(key, false);
         throw "no element";
     }
 
@@ -287,6 +289,10 @@ public:
            Add(key, V());
        }
        return (GetRawValue(key));
+   }
+
+   bool IsInCash(const K& key){
+       return cash.IsInCash(key);
    }
 
     auto begin() const {return _table.begin();}

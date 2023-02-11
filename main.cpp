@@ -97,12 +97,37 @@ int main() {
     hashTable.PrintCash();
     std::cout << std:: endl;
     std::cout << hashTable.GetValue('k') << std::endl;*/
-   
+
     assert((hashTable.GetValue('k') == 7));
     std::cout << "Checkpoint 1 passed" << std::endl;
     assert((hashTable.GetValue('L') == 0));
     std::cout << "Checkpoint 2 passed" << std::endl;
     assert((hashTable.GetValue('r') == 12));
+    std::cout << "Checkpoint 3 passed" << std::endl;
+
+
+    std::cout << std::endl;
+    //=========CASH TEST=========//
+    std::cout<< "CASH TESTS" << std::endl;
+    hashTable.Add('z', 12);
+    hashTable.Add('x', 15);
+    hashTable.Add('c', 1);
+    hashTable.Add('q', 10);
+    hashTable.GetValue('x');
+
+    assert((hashTable.IsInCash('z') == 0));
+    std::cout << "Checkpoint 1 passed" << std::endl;
+    assert((hashTable.IsInCash('x') == 1));
+    std::cout << "Checkpoint 2 passed" << std::endl;
+
+    //hashTable.PrintCash();
+
+    hashTable.GetValue('z');
+    hashTable.IsFound('c');
+    hashTable.IsFound('g');
+    hashTable.IsFound('a');
+    assert((hashTable.IsInCash('x') == 0));
+    //hashTable.PrintCash();
     std::cout << "Checkpoint 3 passed" << std::endl;
 
 
@@ -208,8 +233,6 @@ int main() {
     std::cout << hashTable['L'] << std::endl;
 
     std::cout << hashTable.GetValue('L') << std::endl;*/
-
-
 /*
     std::cout << hashTable['o'] << std::endl;
 
@@ -220,7 +243,6 @@ int main() {
 
 //    int* x = &(hashTable.Find('V'));
 //    *x = 15;
-
     //std::cout << hashTable.IsFound('V') << " " << hashTable.Find('V');
 
     //hashTable.Remove('j');
@@ -231,7 +253,6 @@ int main() {
     hashTable.Add("ant", 8);
     hashTable.Add("am", 2);
     hashTable.Print();
-
     hashTable.Remove("a");*/
 
     return 0;
