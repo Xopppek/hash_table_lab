@@ -106,12 +106,6 @@ private:
         return false;
     }
 
-    void CleanTail(){
-        while((_table.end()-1)->empty()) {
-            _table.pop_back();
-            _size--;
-        }
-    }
 
 public:
 
@@ -151,6 +145,13 @@ public:
         (*tableIter).push_back(newElement);
         if (cash.IsInCash(key)) cash.Add(key);
         return 0;
+    }
+    
+    void CleanTail(){
+        while((_table.end()-1)->empty()) {
+            _table.pop_back();
+            _size--;
+        }
     }
 
     //add returns 0 if element was in table and deleted successfully, 1 if there wasn't any elements with this key
