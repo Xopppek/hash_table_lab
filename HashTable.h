@@ -21,12 +21,12 @@ private:
         bool _isInTable;
         V _value;
     public:
-        CashElement(K key, bool isInTable) : _key(key), _isInTable(isInTable) {};
+        CashElement(K key, bool isInTable, V value = V()) : _key(key), _value(value), _isInTable(isInTable) {};
         K GetKey() const {return _key;}
         V GetValue() const {return _value;}
         bool IsInTable() const {return _isInTable;}
         void Remove(){_isInTable = 0;}
-        void Add(){_isInTable = 1;}
+        void Add(const V& value){_isInTable = 1; _value = value;}
     };
     size_t _capacity;
     size_t _size = 0;
@@ -34,8 +34,8 @@ private:
 public:
     Cash(size_t capacity = 3){CashElements = std::list<CashElement>(); _capacity = capacity;}
     ~Cash() = default;
-    void Set(K key, bool isInTable){
-        CashElement newCashElement = CashElement(key, isInTable);
+    void Set(K key, bool isInTable, V value = V()){
+        CashElement newCashElement = CashElement(key, isInTable, value);
         if (_size == _capacity)
             CashElements.pop_front();
         else
@@ -43,7 +43,7 @@ public:
         CashElements.push_back(newCashElement);
     }
     //returns 0 if not in table, 1 if is in table, 2 if is not in cash
-    short GetStatus(const K& key){
+    short GetStatus(const K& key) const{
         for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++){
             if ((*iter).GetKey() == key)
                 return (*iter).IsInTable();
@@ -51,7 +51,15 @@ public:
         return 2;
     }
 
-    bool IsInCash(const K& key){
+    V GetValue(const K& key) const {
+        for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++) {
+            if ((*iter).GetKey() == key)
+                return (*iter).GetValue();
+        }
+        throw "no element in cash";
+    }
+
+    bool IsInCash(const K& key) const{
         for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++){
             if ((*iter).GetKey() == key)
                 return true;
@@ -59,10 +67,10 @@ public:
         return false;
     }
 
-    void Add(const K& key){
+    void Add(const K& key, const V& value){
         for (auto iter = CashElements.begin(); iter != CashElements.end(); iter++){
             if ((*iter).GetKey() == key)
-                (*iter).Add();
+                (*iter).Add(value);
         }
     }
 
@@ -113,6 +121,21 @@ private:
         return false;
     }
 
+    V& GetRawValue(const K& key, const HashFunction& hashFunction = HashFunction()){
+        if (cash.GetStatus(key) == 0) throw "no element";
+        int hash = hashFunction(key);
+        if (hash >= _size || hash < 0) throw "invalid key";
+        auto tableIter = _table.begin();
+        tableIter += hash;
+        for (auto listIter = (*tableIter).begin(); listIter != (*tableIter).end(); listIter++){
+            if ((*listIter).GetKey() == key) {
+                return (*listIter).GetValue();
+            }
+        }
+        throw "no element";
+    }
+
+
 
 public:
 
@@ -150,7 +173,7 @@ public:
         }
         Element newElement = Element(key, value);
         (*tableIter).push_back(newElement);
-        if (cash.IsInCash(key)) cash.Add(key);
+        if (cash.IsInCash(key)) cash.Add(key, value);
         return 0;
     }
 
@@ -197,7 +220,7 @@ public:
         tableIter += hash;
         for (auto listIter = (*tableIter).begin(); listIter != (*tableIter).end(); listIter++){
             if ((*listIter).GetKey() == key) {
-                cash.Set(key, true);
+                cash.Set(key, true, (*listIter).GetValue());
                 return true;
             }
         }
@@ -205,12 +228,13 @@ public:
         return false;
     }
 
-    //use it only if IsFound
-    V& GetValue(const K& key, const HashFunction& hashFunction = HashFunction()){
+    V GetValue(const K& key, const HashFunction& hashFunction = HashFunction()) const{
         if (cash.GetStatus(key) == 0) throw "no element";
-
         int hash = hashFunction(key);
         if (hash >= _size || hash < 0) throw "invalid key";
+
+        if (cash.IsInCash(key)) return cash.GetValue(key);
+
         auto tableIter = _table.begin();
         tableIter += hash;
         for (auto listIter = (*tableIter).begin(); listIter != (*tableIter).end(); listIter++){
@@ -220,6 +244,9 @@ public:
         }
         throw "no element";
     }
+
+    //use it only if IsFound
+
 
     //forbidden function ^_^
    /* void Print(){
@@ -237,7 +264,7 @@ public:
    void PrintCash(){
        auto it = cash.begin();
        while (it != cash.end()){
-           std::cout << (*it).GetKey() << "-" << (*it).IsInTable() << " ";
+           std::cout << (*it).GetKey() << "-" << (*it).IsInTable() << "-" << (*it).GetValue() << " ";
            it++;
        }
        std::cout << std::endl;
@@ -252,13 +279,6 @@ public:
            Add(key, V());
            return (_table[hash].begin()->GetValue());
        }
-       /*auto it = _table[hash].begin();
-       while (it != _table[hash].end()){
-           if (it->GetKey() == key){
-               return (it->GetValue());
-           }
-           it++;
-       }*/
        auto keyIsEven = [&key](const Element& element){ return (key == element.GetKey()); };
 
        auto result = std::find_if(_table[hash].begin(), _table[hash].end(), keyIsEven);
@@ -266,7 +286,7 @@ public:
        if(result == _table[hash].end()) {
            Add(key, V());
        }
-       return (GetValue(key));
+       return (GetRawValue(key));
    }
 
     auto begin() const {return _table.begin();}

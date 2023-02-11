@@ -1,6 +1,7 @@
 #include <iostream>
 #include "HashTable.h"
 #include "string"
+#include "cassert"
 
 struct f{
     int operator() (const char& key) const{
@@ -18,14 +19,101 @@ struct g{
     }
 };
 
+template <typename K, typename V, class HashFunction>
+bool tablesAreEven(HashTable<K, V, HashFunction> hashTable1, HashTable<K, V, HashFunction> hashTable2){
+    auto tableIt1 = hashTable1.begin();
+    auto tableIt2 = hashTable2.begin();
+    while (tableIt1 != hashTable1.end()){
+        auto listIt1 = (*tableIt1).begin();
+        auto listIt2 = (*tableIt2).begin();
+        while (listIt1 != (*tableIt1).end()){
+            if (listIt1->GetKey() != listIt2->GetKey() || listIt1->GetValue() != listIt2->GetValue()) return false;
+            listIt1++;
+            listIt2++;
+        }
+        if(listIt2 != (*tableIt2).end()) return false;
+        tableIt1++;
+        tableIt2++;
+    }
+    if (tableIt2 != hashTable2.end()) return false;
+    return true;
+}
+
 int main() {
     HashTable<char, int, f> hashTable(6, 4);
-    hashTable.DontMakeShort();
-    hashTable.MakeShort();
+
+    //=============ADDING ELEMENT=============//
+    std::cout<< "ADDING ELEMENTS TESTS" << std::endl;
+    hashTable.Add('g', 6);
+    assert((hashTable['g'] == 6));
+    std::cout << "Checkpoint 1 passed" << std::endl;
+    hashTable.Add('T', 1);
+    assert((hashTable['T'] == 1));
+    std::cout << "Checkpoint 2 passed" << std::endl;
+    hashTable.Add('M', 10);
+    assert((hashTable['M'] == 10));
+    std::cout << "Checkpoint 3 passed" << std::endl;
+
+
+    std::cout << std::endl;
+    //==========REMOVING ELEMENT========//
+    std::cout<< "REMOVING ELEMENTS TESTS" << std::endl;
+    hashTable.Remove('g');
+    assert((!hashTable.IsFound('g')));
+    std::cout << "Checkpoint 1 passed" << std::endl;
+    hashTable.Remove('T');
+    assert((!hashTable.IsFound('T')));
+    std::cout << "Checkpoint 2 passed" << std::endl;
+    hashTable.Remove('M');
+    assert((!hashTable.IsFound('M')));
+    std::cout << "Checkpoint 3 passed" << std::endl;
+
+    std::cout << std::endl;
+
+    //=========IS FOUND==========//
+    std::cout<< "SEARCHING ELEMENTS TESTS" << std::endl;
+    hashTable.Add('k');
+    hashTable.Remove('k');
+    hashTable.Add('B');
+
+    assert((!hashTable.IsFound('k')));
+    std::cout << "Checkpoint 1 passed" << std::endl;
+    assert((!hashTable.IsFound('T')));
+    std::cout << "Checkpoint 2 passed" << std::endl;
+    assert((hashTable.IsFound('B')));
+    std::cout << "Checkpoint 3 passed" << std::endl;
+
+    std::cout << std::endl;
+
+    //=======GETTING VALUE========//
+
+    std::cout<< "GETTING VALUE TESTS" << std::endl;
+    hashTable.Add('k', 7);
+    hashTable.Add('L');
+    hashTable.Add('r', 12);
+
+   /* std::cout << hashTable['k'] << std::endl;
+    std::cout << hashTable << std::endl;
+    hashTable.PrintCash();
+    std::cout << std:: endl;
+    std::cout << hashTable.GetValue('k') << std::endl;*/
+   
+    assert((hashTable.GetValue('k') == 7));
+    std::cout << "Checkpoint 1 passed" << std::endl;
+    assert((hashTable.GetValue('L') == 0));
+    std::cout << "Checkpoint 2 passed" << std::endl;
+    assert((hashTable.GetValue('r') == 12));
+    std::cout << "Checkpoint 3 passed" << std::endl;
+
+
+
+
+   /* HashTable<char, int, f> hashTable(6, 4);
+    hashTable.MakeShort();*/
    /* HashTable<char, int> hashTable1(2);
     std::cout << hashTable1 << std::endl;*/
 
-    hashTable.Add('a', 5);
+    /*hashTable.Add('a', 5);
     hashTable.Add('b', 7);
     hashTable.Add('a', 8);
     hashTable.Add('j', 2);
@@ -37,9 +125,23 @@ int main() {
     hashTable.Add('g', 14);
     hashTable.Add('G', 16);
     hashTable.Add('o');
+
+    HashTable<char, int, f> hashTable2(6, 4);
+    hashTable2.Add('a', 5);
+    hashTable2.Add('b', 7);
+    hashTable2.Add('a', 8);
+    hashTable2.Add('j', 2);
+    hashTable2.Add('V', 11);
+    hashTable2.Add('T', 4);
+    hashTable2.Add('R', 9);
+    hashTable2.Add('m', 3);
+    hashTable2.Add('q', 17);
+    hashTable2.Add('g', 14);
+    hashTable2.Add('e', 16);
+    hashTable2.Add('o');
+
+    std::cout << tablesAreEven(hashTable, hashTable2) << " equal\n\n";*/
     //hashTable.Add('y', 10);
-
-
 
    /* auto it = hashTable.begin();
     while(it != hashTable.end()){
@@ -55,7 +157,7 @@ int main() {
         it++;
     }*/
 
-    std::cout << hashTable << std::endl;
+    /*std::cout << hashTable << std::endl;
 
     hashTable.Remove('G');
 
@@ -64,11 +166,11 @@ int main() {
     hashTable.Remove('q');
 
     std::cout << hashTable << std::endl;
-
+*/
 
     //std::cout << hashTable.IsFound('j') << " " << hashTable.GetValue('j') << "\n";
 
-    std::cout << hashTable.IsFound('j') << "\n";
+   /* std::cout << hashTable.IsFound('j') << "\n";
     std::cout << hashTable.IsFound('r') << "\n\n";
 
 
@@ -104,6 +206,8 @@ int main() {
     std::cout << a << " a " << std:: endl;
     hashTable['L'] = 100;
     std::cout << hashTable['L'] << std::endl;
+
+    std::cout << hashTable.GetValue('L') << std::endl;*/
 
 
 /*
