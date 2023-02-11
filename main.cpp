@@ -20,6 +20,8 @@ struct g{
 
 int main() {
     HashTable<char, int, f> hashTable(6);
+    hashTable.DontMakeShort();
+    hashTable.MakeShort();
    /* HashTable<char, int> hashTable1(2);
     std::cout << hashTable1 << std::endl;*/
 

@@ -90,6 +90,7 @@ private:
 
     size_t _size = 0;
     size_t _maxSize = 1000;
+    bool wantedToBeShort = true;
 
     Cash cash;
 
@@ -146,7 +147,7 @@ public:
         if (cash.IsInCash(key)) cash.Add(key);
         return 0;
     }
-    
+
     void CleanTail(){
         while((_table.end()-1)->empty()) {
             _table.pop_back();
@@ -167,12 +168,16 @@ public:
             if ((*listIter).GetKey() == key) {
                 (*tableIter).erase(listIter);
                 if (cash.IsInCash(key)) cash.Remove(key);
-                CleanTail();
+                if (wantedToBeShort) CleanTail();
                 return 0;
             }
         }
         return 1;
     }
+
+    void MakeShort(){wantedToBeShort = true;}
+
+    void DontMakeShort(){wantedToBeShort = false;}
 
 
     bool IsFound(const K& key, const HashFunction& hashFunction = HashFunction()){
